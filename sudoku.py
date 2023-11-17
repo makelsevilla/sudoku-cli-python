@@ -1,3 +1,5 @@
+import os
+
 def start():
     board = [
         [5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -15,7 +17,27 @@ def start():
 
 
 def draw_board(board):
-    pass
+    os.system("clear")
+
+    print("-"*34)
+    for i, row in enumerate(board):
+        if i % 3 == 0 and i != 0:
+            print("-"*34)
+        
+        print("|", end=" ")
+
+        for j, col in enumerate(row):
+            if j % 3 == 0 and j != 0:
+                print("|", end=" ")
+
+            value = col
+            if col == 0:
+                value = "."
+
+            print(f"{value}  ", end="")
+        
+        print("|")
+    print("-"*34)
 
 if __name__ == "__main__":
     # start the game
