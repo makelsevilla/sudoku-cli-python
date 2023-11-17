@@ -16,6 +16,11 @@ def start():
     pre_filled_cell = generate_pre_filled_cell_array(board)
             
     while True:
+        print("\n\n")
+        print("Pre-filled cells board")
+        draw_board(pre_filled_cell)
+
+        print("Current Board")
         draw_board(board)
 
         # get the user input
