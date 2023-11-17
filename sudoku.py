@@ -39,8 +39,8 @@ def start():
             print("Non integer value entered.")
             continue
 
-        # Check the inputs if between 1 and 9
-        if not inputs_are_between_1_and_9(inputs):
+        # Check the inputs if between 0 and 9
+        if not inputs_are_between_0_and_9(inputs):
             print("A value/s are out of range.")
             continue
 
@@ -49,9 +49,10 @@ def start():
             print("The cell selected is pre-filled. Choose another cell")
             continue
 
-        if not can_insert_value_to_cell(inputs, board):
-            print("Value have conflicts. Select a different value to insert.")
-            continue
+        if inputs["value"] != 0:
+            if not can_insert_value_to_cell(inputs, board):
+                print("Value have conflicts. Select a different value to insert.")
+                continue
 
         # insert the value to cell if all checks passed
         board[inputs["row"] - 1][inputs["col"] -1] = inputs["value"]
@@ -75,18 +76,18 @@ def board_is_filled(board):
 def can_insert_value_to_cell(inputs, board):
 # subtract 1 to the value of row and col
     row_idx = inputs["row"] - 1
-    col_idx = inputs["col"] -1 
+    col_idx = inputs["col"] - 1 
     
     value = inputs["value"]
 
     # check every column of the row if equal to the value
-    for col_value in board[row_idx]:
-        if col_value == value:
+    for idx, col_value in enumerate(board[row_idx]):
+        if col_value == value and idx != col_idx:
             return False
         
     # check every row of the column if equal to the value
-    for row in board:
-        if row[col_idx] == value:
+    for idx, row in enumerate(board):
+        if row[col_idx] == value and idx != row_idx:
             return False
 
     # check the sub-grid
@@ -97,18 +98,18 @@ def can_insert_value_to_cell(inputs, board):
     col_start = col_idx // 3 * 3
     col_end = col_start + 3
 
-    for sub_row_idx in range(row_start, row_end + 1):
-        for sub_col_idx in range(col_start, col_end + 1):
-            if board[sub_row_idx][sub_col_idx] == value:
+    for sub_row_idx in range(row_start, row_end):
+        for sub_col_idx in range(col_start, col_end):
+            if board[sub_row_idx][sub_col_idx] == value and (sub_col_idx != col_idx and sub_row_idx != row_idx):
                 return False
     
     # return true if value does not have conflicts
     return True
 
 
-def inputs_are_between_1_and_9(inputs):
+def inputs_are_between_0_and_9(inputs):
     for key, value in inputs.items():
-        if value < 1 or value > 9:
+        if value < 0 or value > 9:
             return False
         
     return True
