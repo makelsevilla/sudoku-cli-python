@@ -1,5 +1,4 @@
-import os
-import math
+import sys
 
 def start():
     board = [
@@ -14,71 +13,72 @@ def start():
         [0, 0, 0, 0, 8, 0, 0, 7, 9]
     ]
 
-    filled_board_cell = generate_pre_defined_cell_array(board)
-
+    pre_filled_cell = generate_pre_filled_cell_array(board)
+            
     while True:
         draw_board(board)
 
         # get the user input
-        user_input = (input("(Row, Column, Value): ")).split(",")
-
-        # check if the user provided a 3 input
-        if (len(user_input) < 3):
+        user_inputs = (input("(Row,Column,Value): ")).split(",")
+        # check if the user provided atleast 3 input
+        if (len(user_inputs) < 3):
             print("Too few arguments. Please try again.")
-
+            continue
+        inputs = {}
         try:
             #  convert the input to integer
-            row = int(user_input[0].strip())
-            col = int(user_input[1].strip())
-            value = int(user_input[2].strip())
+            inputs["row"] = int(user_inputs[0].strip())
+            inputs["col"] = int(user_inputs[1].strip())
+            inputs["value"] = int(user_inputs[2].strip())
         except:
             print("Non integer value entered.")
+            continue
 
-        input_is_valid = validate_user_input(row, col, value, board)
-        if not input_is_valid:
-            print("Invalid")
-        else:
-            # alter the value in board if the cell is not included in pre-defined
-            if not filled_board_cell[row - 1][col - 1]:
-                board[row - 1][col - 1] = value
-            else:
-                print("The cell is pre-defined. choose another cell")
+        # Check the inputs if between 1 and 9
+        if not inputs_are_between_1_and_9(inputs):
+            print("A value/s are out of range.")
+            continue
+
+        # skip if the cell is pre-filled
+        if pre_filled_cell[inputs["row"] - 1][inputs["col"] - 1]:
+            print("The cell selected is pre-filled. Choose another cell")
+            continue
+
+        if not can_insert_value_to_cell(inputs, board):
+            print("Value have conflicts. Select a different value to insert.")
+            continue
+
+        # insert the value to cell if all checks passed
+        board[inputs["row"] - 1][inputs["col"] -1] = inputs["value"]
+
+        # checks if all cells are filled
+        if board_is_filled(board):
+            print("Game Over! Thank you for playing.")
+            sys.exit()
 
 
-def validate_user_input(row, col, value, board):
-    row_is_valid = number_is_between_1_to_9(row)
-    col_is_valid = number_is_between_1_to_9(col)
-    value_is_valid = number_is_between_1_to_9(value) and value_can_be_inserted_to_board(row, col, value, board)
-
-    if (row_is_valid and col_is_valid and value_is_valid):
-        return True
-
-    return False
-
-
-def number_is_between_1_to_9(num):
-    # if num is not a number, emit error
-
-    # if num is not a number between 1 and 9 return false
-    if not (num > 0 and num < 10):
-        return False
-
+def board_is_filled(board):
+    # checks all the cells if all is not equal to 0
+    for row in board:
+        for col in row:
+            if col == 0:
+                return False
+            
     return True
 
-def value_can_be_inserted_to_board(row, col, value, board):
-    # subtract 1 to the value of row and col
-    row_idx = row - 1
-    col_idx = col -1 
+# returns true if value doesn't have conflicts
+def can_insert_value_to_cell(inputs, board):
+# subtract 1 to the value of row and col
+    row_idx = inputs["row"] - 1
+    col_idx = inputs["col"] -1 
+    
+    value = inputs["value"]
 
-    # check if the cell is not a pre-defined cell
-
-    # check the row
-    # check the every column of the row if equal to the value
+    # check every column of the row if equal to the value
     for col_value in board[row_idx]:
         if col_value == value:
             return False
-
-    # check the column
+        
     # check every row of the column if equal to the value
     for row in board:
         if row[col_idx] == value:
@@ -97,9 +97,16 @@ def value_can_be_inserted_to_board(row, col, value, board):
             if board[sub_row_idx][sub_col_idx] == value:
                 return False
     
-    # return true if value is not found to any of the checks
+    # return true if value does not have conflicts
     return True
 
+
+def inputs_are_between_1_and_9(inputs):
+    for key, value in inputs.items():
+        if value < 1 or value > 9:
+            return False
+        
+    return True
 
 def draw_board(board):
 
@@ -123,14 +130,16 @@ def draw_board(board):
         print("|")
     print("-"*34)
 
-def generate_pre_defined_cell_array(board):
-    cell_array = [[False] * 9] * 9
-    for row_idx, row in enumerate(board):
-        for col_idx, col in enumerate(row):
-            cell_is_filled = board[row_idx][col_idx] > 0
-            cell_array[row_idx][col_idx] == True
-    print(cell_array)
-    return cell_array
+def generate_pre_filled_cell_array(board):
+    filled_cell_array = [[0 for _ in range(9)] for _ in range(9)]
+
+    print(len(board))
+    for row_idx in range(len(board)):
+        for col_idx in range(len(board[row_idx])):
+            if board[row_idx][col_idx] > 0:
+                filled_cell_array[row_idx][col_idx] = 1
+
+    return filled_cell_array
 
 if __name__ == "__main__":
     # start the game
